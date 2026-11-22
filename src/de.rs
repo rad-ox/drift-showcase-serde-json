@@ -144,10 +144,10 @@ impl<'de, R: Read<'de>> Deserializer<R> {
     /// This allows the `Deserializer` to validate that the input stream is at the end or that it
     /// only has trailing whitespace.
     pub fn end(&mut self) -> Result<()> {
-        match tri!(self.parse_whitespace()) {
-            Some(_) => Err(self.peek_error(ErrorCode::TrailingCharacters)),
-            None => Ok(()),
+        if tri!(self.parse_whitespace()).is_some() {
+            return Err(self.peek_error(ErrorCode::TrailingCharacters));
         }
+        Ok(())
     }
 
     /// Turn a JSON deserializer into an iterator over values of type T.
