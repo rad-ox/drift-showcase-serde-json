@@ -1,0 +1,24 @@
+drift = "0.3"
+profile = "serde-json@1"
+
+[requires]
+proof = "verified"
+
+[schema.when]
+op = { type = "string" }
+input = { type = "string" }
+
+[schema.then]
+ok = { type = "bool", ptr = "/ok" }
+json = { type = "string", ptr = "/json" }
+key_count = { type = "int", ptr = "/key_count" }
+roundtrip_equal = { type = "bool", ptr = "/roundtrip_equal" }
+name = { type = "string", ptr = "/name" }
+total_cents = { type = "int", ptr = "/total_cents" }
+tag = { type = "string", ptr = "/tag" }
+is_i64 = { type = "bool", ptr = "/is_i64" }
+is_u64 = { type = "bool", ptr = "/is_u64" }
+is_f64 = { type = "bool", ptr = "/is_f64" }
+category = { type = "string", ptr = "/category" }
+error_line = { type = "int", ptr = "/error_line" }
+error_col = { type = "int", ptr = "/error_col" }

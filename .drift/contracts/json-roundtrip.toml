@@ -1,0 +1,58 @@
+drift = "0.3"
+id = "json-roundtrip"
+intent = "Deterministic JSON serialization, string escaping, nested object deserialization, number typing, and non-finite float handling in serde_json."
+
+[use]
+profile = "serde-json@1"
+
+[scope]
+surface = "serde_json.roundtrip"
+writes = []
+reads = ["JSON_INPUT"]
+indirect = "none"
+out = ["JSON_VALUE"]
+
+[bind]
+code = ["src/ser.rs", "src/de.rs", "src/map.rs", "src/number.rs", "src/value/**"]
+
+[cases.serialize-escaped-object]
+at = ["unit"]
+when.op = "serialize-object"
+when.input = "escaped-object"
+then.ok = true
+then.json = "{\"active\":true,\"count\":-42,\"note\":\"line1\\n\\\"quoted\\\"\",\"unset\":null}"
+then.key_count = 4
+then.roundtrip_equal = true
+
+[cases.parse-nested-object]
+at = ["unit"]
+when.op = "parse-object"
+when.input = "{\"name\":\"drift-\\\"rust\\\"\",\"total_cents\":1999,\"tags\":[\"json\",\"verified\"]}"
+then.ok = true
+then.key_count = 3
+then.name = "drift-\"rust\""
+then.total_cents = 1999
+then.tag = "verified"
+
+[cases.non-finite-float-null]
+at = ["unit"]
+when.op = "serialize-non-finite"
+when.input = "NaN,Infinity"
+then.ok = true
+then.json = "[null,null]"
+
+[cases.preserve-number-types]
+at = ["unit"]
+when.op = "parse-numbers"
+when.input = "{\"i\":-42,\"u\":9007199254740991,\"f\":3.5}"
+then.ok = true
+then.key_count = 3
+then.is_i64 = true
+then.is_u64 = true
+then.is_f64 = true
+
+[approval]
+behavior_ref = "dr2b:aa2397becb03"
+assurance_ref = "dr2a:2162d553e710"
+by = "rad-ox"
+at = 2026-11-23T00:00:00Z

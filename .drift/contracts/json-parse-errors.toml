@@ -1,0 +1,57 @@
+drift = "0.3"
+id = "json-parse-errors"
+intent = "Strict JSON syntax, trailing-character, trailing-comma, EOF, and typed deserialization error classification with line and column diagnostics."
+
+[use]
+profile = "serde-json@1"
+
+[scope]
+surface = "serde_json.parse_errors"
+writes = []
+reads = ["JSON_INPUT"]
+indirect = "none"
+out = ["PARSE_RESULT"]
+
+[bind]
+code = ["src/de.rs", "src/error.rs", "src/read.rs"]
+
+[cases.reject-trailing-characters]
+at = ["unit"]
+when.op = "parse-value"
+when.input = "{\"role\":\"user\"} trailing"
+then.ok = false
+then.category = "syntax"
+then.error_line = 1
+then.error_col = 17
+
+[cases.reject-trailing-comma]
+at = ["unit"]
+when.op = "parse-value"
+when.input = "{\"a\": 1,}"
+then.ok = false
+then.category = "syntax"
+then.error_line = 1
+then.error_col = 9
+
+[cases.reject-truncated-eof]
+at = ["unit"]
+when.op = "parse-value"
+when.input = "{\"a\": [1, 2"
+then.ok = false
+then.category = "eof"
+then.error_line = 1
+then.error_col = 11
+
+[cases.reject-type-mismatch]
+at = ["unit"]
+when.op = "parse-typed"
+when.input = "{\"count\":\"not-a-number\"}"
+then.ok = false
+then.category = "data"
+then.error_line = 1
+
+[approval]
+behavior_ref = "dr2b:e0632a2b992f"
+assurance_ref = "dr2a:e45e59f842cc"
+by = "rad-ox"
+at = 2026-11-23T00:00:00Z
