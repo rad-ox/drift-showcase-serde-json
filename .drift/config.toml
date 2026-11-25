@@ -1,12 +1,16 @@
 drift = "0.3"
 kind = "config"
 
+[area]
+owner = "rad-ox"
+
 [policy]
 pack = "core@1"
 approvers = ["rad-ox"]
 proof = "verified"
+require_observations = true
 
 [approval]
-ref = "dr1:1d03d7b61f22"
+ref = "dr1:ccc1911594d9"
 by = "rad-ox"
-at = 2026-11-23T00:00:00Z
+at = 2026-11-25T20:18:43Z

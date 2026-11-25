@@ -23,7 +23,7 @@ serde = { version = "1.0.220", default-features = false }
 
 [dev-dependencies]
 automod = "1.0.11"
-drift_rust = { git = "https://github.com/rad-ox/drift.git", tag = "v0.10.0" }
+drift_rust = { git = "https://github.com/rad-ox/drift.git", tag = "v0.11.0" }
 indoc = "2.0.2"
 ref-cast = "1.0.18"
 rustversion = "1.0.13"

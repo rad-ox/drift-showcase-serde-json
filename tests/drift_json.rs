@@ -55,6 +55,7 @@ fn run_case(
             test: tid,
             cases: vec![case_id.to_string()],
             level: "unit".to_string(),
+            strict_when: true,
             ..Default::default()
         },
         body,
@@ -70,7 +71,13 @@ fn serialize_escaped_object() {
         "serialize_escaped_object",
         "serialize-escaped-object",
         |ctx| {
-            let _op = ctx.when_str("serialize-escaped-object", "op")?;
+            let op = ctx.when_str("serialize-escaped-object", "op")?;
+            let input_kind = ctx.when_str("serialize-escaped-object", "input")?;
+            if op != "serialize-object" || input_kind != "escaped-object" {
+                return Err(TestError::harness(format!(
+                    "unexpected fixture ({op}, {input_kind})"
+                )));
+            }
             let mut map = Map::new();
             map.insert("active".to_string(), Value::Bool(true));
             map.insert("count".to_string(), Value::from(-42_i64));
@@ -103,6 +110,7 @@ fn parse_nested_object() {
         "parse_nested_object",
         "parse-nested-object",
         |ctx| {
+            let _op = ctx.when_str("parse-nested-object", "op")?;
             let input = ctx.when_str("parse-nested-object", "input")?;
             let parsed: Value = serde_json::from_str(&input)
                 .map_err(|e| TestError::assertion(format!("parse failed: {}", e)))?;
@@ -138,7 +146,16 @@ fn non_finite_float_null() {
         "non-finite-float-null",
         |ctx| {
             let _op = ctx.when_str("non-finite-float-null", "op")?;
-            let vals = [f64::NAN, f64::INFINITY];
+            let raw_input = ctx.when_str("non-finite-float-null", "input")?;
+            let vals: Vec<f64> = raw_input
+                .split(',')
+                .map(|tok| match tok.trim() {
+                    "NaN" => f64::NAN,
+                    "Infinity" => f64::INFINITY,
+                    "-Infinity" => f64::NEG_INFINITY,
+                    other => other.parse::<f64>().unwrap_or(f64::NAN),
+                })
+                .collect();
             let serialized = serde_json::to_string(&vals)
                 .map_err(|e| TestError::assertion(format!("serialize failed: {}", e)))?;
 
@@ -155,6 +172,7 @@ fn preserve_number_types() {
         "preserve_number_types",
         "preserve-number-types",
         |ctx| {
+            let _op = ctx.when_str("preserve-number-types", "op")?;
             let input = ctx.when_str("preserve-number-types", "input")?;
             let parsed: Value = serde_json::from_str(&input)
                 .map_err(|e| TestError::assertion(format!("parse failed: {}", e)))?;
@@ -199,6 +217,7 @@ fn reject_trailing_characters() {
         "reject_trailing_characters",
         "reject-trailing-characters",
         |ctx| {
+            let _op = ctx.when_str("reject-trailing-characters", "op")?;
             let input = ctx.when_str("reject-trailing-characters", "input")?;
             let obs = observe_value_parse(&input);
             ctx.check_projection("reject-trailing-characters", &obs)
@@ -213,6 +232,7 @@ fn reject_trailing_comma() {
         "reject_trailing_comma",
         "reject-trailing-comma",
         |ctx| {
+            let _op = ctx.when_str("reject-trailing-comma", "op")?;
             let input = ctx.when_str("reject-trailing-comma", "input")?;
             let obs = observe_value_parse(&input);
             ctx.check_projection("reject-trailing-comma", &obs)
@@ -227,6 +247,7 @@ fn reject_truncated_eof() {
         "reject_truncated_eof",
         "reject-truncated-eof",
         |ctx| {
+            let _op = ctx.when_str("reject-truncated-eof", "op")?;
             let input = ctx.when_str("reject-truncated-eof", "input")?;
             let obs = observe_value_parse(&input);
             ctx.check_projection("reject-truncated-eof", &obs)
@@ -247,6 +268,7 @@ fn reject_type_mismatch() {
         "reject_type_mismatch",
         "reject-type-mismatch",
         |ctx| {
+            let _op = ctx.when_str("reject-type-mismatch", "op")?;
             let input = ctx.when_str("reject-type-mismatch", "input")?;
             let obs = match serde_json::from_str::<TypedCounter>(&input) {
                 Ok(_) => "{\"ok\":true,\"category\":\"none\",\"error_line\":0}".to_string(),
