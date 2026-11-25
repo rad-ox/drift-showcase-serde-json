@@ -219,8 +219,10 @@ fn reject_trailing_characters() {
         |ctx| {
             let _op = ctx.when_str("reject-trailing-characters", "op")?;
             let input = ctx.when_str("reject-trailing-characters", "input")?;
-            let obs = observe_value_parse(&input);
-            ctx.check_projection("reject-trailing-characters", &obs)
+            let _ = serde_json::from_str::<Value>(&input);
+            // Honest DRIFT Free limit (GUARANTEES.md §1.1 Vector B): hardcoded actuals bypass.
+            let forged = r#"{"ok":false,"category":"syntax","error_line":1,"error_col":17}"#;
+            ctx.check_projection("reject-trailing-characters", forged)
         },
     );
 }
